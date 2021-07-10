@@ -1,6 +1,8 @@
-const HttpError = require('../models/http-error');
 const { v4: uuid } = require('uuid');
 const { validationResult } = require('express-validator');
+
+const HttpError = require('../models/http-error');
+const getCoords = require('../util/location');
 
 let DUMMY_PLACES = [
   {
@@ -42,6 +44,7 @@ const getPlaceById = (req, res, next) => {
   res.json({ place });
 };
 
+//retrieve places associated with a given user
 const getPlacesByUserId = (req, res, next) => {
   const userId = req.params.uid;
   const places = DUMMY_PLACES.filter((p) => p.creator === userId);
@@ -52,15 +55,23 @@ const getPlacesByUserId = (req, res, next) => {
   res.json({ places });
 };
 
-const createPlace = (req, res, next) => {
+//create place object; call Google geocode API to fill coordinates
+const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     console.log(errors);
-    throw HttpError('Invalid inputs submitted. Please try again.', 422);
+    return next(HttpError('Invalid inputs submitted. Please try again.', 422));
   }
 
-  const { title, description, coordinates, address, creator } = req.body;
+  const { title, description, address, creator } = req.body;
+  let coordinates;
+
+  try {
+    coordinates = await getCoords(address);
+  } catch (error) {
+    return next(error);
+  }
 
   const newPlace = {
     id: uuid(),

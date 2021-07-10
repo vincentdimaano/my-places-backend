@@ -17,6 +17,7 @@ const DUMMY_USERS = [
   },
 ];
 
+//retrieve list of all users
 const getUsers = (req, res, next) => {
   res.status(200).json({ users: DUMMY_USERS });
 };

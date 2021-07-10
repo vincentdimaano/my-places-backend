@@ -11,7 +11,7 @@ router.get('/user/:uid', placesControllers.getPlacesByUserId);
 //find place by place's ID
 router.get('/:pid', placesControllers.getPlaceById);
 
-//get all places
+//retrieve all places
 router.get('/', (req, res, next) => {});
 
 router.post(
