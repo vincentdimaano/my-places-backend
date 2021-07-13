@@ -5,8 +5,10 @@ const usersController = require('../controllers/users-controllers');
 
 const router = express.Router();
 
+//=== retrieve list of users
 router.get('/', usersController.getUsers);
 
+//=== add new user
 router.post(
   '/signup',
   [
@@ -17,6 +19,7 @@ router.post(
   usersController.signUp
 );
 
+//=== user login
 router.post('/login', usersController.logIn);
 
 module.exports = router;

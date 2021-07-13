@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -13,7 +13,8 @@
     "axios": "^0.21.1",
     "express": "^4.17.1",
     "express-validator": "^6.12.0",
-    "uuid": "^8.3.2"
+    "mongoose": "^5.13.2",
+    "mongoose-unique-validator": "^2.0.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.9"
