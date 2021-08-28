@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
 
 const HttpError = require('./models/http-error');
 const placesRoutes = require('./routes/places-routes');
@@ -11,6 +13,8 @@ const PORT = process.env.PORT || 5000;
 
 //=== MIDDLEWARE
 app.use(express.json());
+
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 
 app.use((req, res, next) => {
   //set header to handle CORS error
@@ -29,10 +33,17 @@ app.use('/api/places', placesRoutes);
 app.use('/api/users', usersRoutes);
 app.use((req, res, next) => {
   const error = new HttpError('That route does not exist.', 404);
-  throw error;
+  return next(error);
 });
 
 app.use((error, req, res, next) => {
+  //if signup fails, upload file is not saved
+  if (req.file) {
+    fs.unlink(req.file.path, () => {
+      console.log(error);
+    });
+  }
+
   if (res.headerSent) {
     return next(error);
   }
