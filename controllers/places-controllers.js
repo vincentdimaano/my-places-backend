@@ -65,7 +65,6 @@ const getPlacesByUserId = async (req, res, next) => {
 const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
 
-  console.log(req.body);
   if (!errors.isEmpty()) {
     console.log(errors);
     return next(
@@ -73,7 +72,7 @@ const createPlace = async (req, res, next) => {
     );
   }
 
-  const { title, description, address, creator } = req.body;
+  const { title, description, address } = req.body;
   let coordinates;
 
   try {
@@ -89,12 +88,12 @@ const createPlace = async (req, res, next) => {
     address,
     location: coordinates,
     imageUrl: req.file.path,
-    creator,
+    creator: req.userData.userId
   });
 
   let user;
   try {
-    user = await User.findById(creator);
+    user = await User.findById(req.userData.userId);
   } catch (error) {
     return next(
       new HttpError('Failed to create place, please try again.', 500)
@@ -151,6 +150,16 @@ const updatePlace = async (req, res, next) => {
     );
   }
 
+  //place.creator is a mongoose id object so convert to string
+  if(place.creator.toString() !== req.userData.userId ) {
+    return next(
+      new HttpError(
+        'You have no permission to edit this place.',
+        401
+      )
+    );
+  }
+
   place.title = title;
   place.description = description;
 
@@ -183,6 +192,16 @@ const deletePlace = async (req, res, next) => {
 
   if (!place) {
     return next(new HttpError('Could not find place with the given ID.', 404));
+  }
+
+  //no need to call toString(), mongoose .id getter does it
+  if(place.creator.id !== req.userData.userId ) {
+    return next(
+      new HttpError(
+        'You have no permission to delete this place.',
+        401
+      )
+    );
   }
 
   const imagePath = place.imageUrl;
